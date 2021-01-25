@@ -1,11 +1,10 @@
 /*
- *  @function createObjectFromArrayOfKeys
- *  @param arrayOfKeys
+ *  createObjectFromArrayOfKeys
+ *  @params arrayOfKeys
  *  @param value: any
  *
- *  if value is array it must be the same length as arrayOfKeys
+ *  @returns object
  */
-
 export function createObjectFromArrayOfKeys(arrayOfKeys, value) {
   const obj = {};
   for (let key of arrayOfKeys) {
@@ -36,7 +35,6 @@ export function createObjectFromTwoArrays(keys, values) {
  *
  *  @return result string
  */
-
 export function resultsGenerator(pollName, results) {
   let res = `Задача: ${pollName}\n`;
   let winner = {
