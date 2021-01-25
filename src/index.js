@@ -1,82 +1,72 @@
 import "dotenv/config";
 import Discord from "discord.js";
+import {
+  createObjectFromArrayOfKeys,
+  createObjectFromTwoArrays,
+  resultsGenerator,
+} from "./utils";
 
 const client = new Discord.Client();
 const Token = process.env.TOKEN;
 
 client.login(Token);
 
+global.client = client;
+
 client.on("ready", () => {
   console.info(`Logged in as ${client.user.tag}!`);
+  const emojies = client.emojis.cache.array();
+
+  global.emojieDict = createObjectFromTwoArrays(
+    [...emojies.map((e) => e.name)],
+    [...emojies.map((e) => e.id)]
+  );
 });
 
 client.on("message", async (msg) => {
   if (msg.content.match(/^!est /)) {
-    const results = {
-      "0️⃣": 0,
-      "1️⃣": 0,
-      "2️⃣": 0,
-      "3️⃣": 0,
-      "5️⃣": 0,
-      "8️⃣": 0,
-      "🔢": 0,
-      "🛑": 0,
-    };
+    const results = createObjectFromArrayOfKeys(
+      ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"],
+      { value: 0, users: [] }
+    );
+
     const pollName = msg.content.replace(/^!est /, "");
 
     const estMessage = await msg.channel.send(pollName);
 
     await Promise.allSettled([
-      ...Object.keys(results).map((key) => estMessage.react(key)),
+      ...Object.keys(results).map((key) =>
+        estMessage.react(global.emojieDict[key])
+      ),
     ]);
 
-    console.log("poll ready");
-
-    console.log("poll start");
-    const filter = (r) => r.emoji.name.match(/0️⃣|1️⃣|2️⃣|3️⃣|5️⃣|8️⃣|🔢|🛑/);
+    const filter = (r) => r.emoji.name in results;
 
     const controller = estMessage.createReactionCollector(filter);
 
-    controller.on("collect", (collected) => {
-      if (collected.emoji.name === "🛑") {
-        controller.stop("Stopped by user");
-      }
+    controller.on("collect", (r) => {
+      if (r.emoji.name === "stop") controller.stop("stopped by user");
     });
 
     controller.on("end", (collection) => {
       collection.forEach((reaction) => {
-        results[reaction.emoji.name] = reaction.count - 1;
+        if (reaction.emoji.name === "stop") {
+          delete results[reaction.emoji.name];
+          return;
+        }
+        results[reaction.emoji.name].value = reaction.count - 1;
+
+        const filteredUsers = reaction.users.cache
+          .filter((user) => user.id !== client.user.id)
+          .array();
+
+        for (let user of filteredUsers) {
+          results[reaction.emoji.name].users.push(user.tag);
+        }
       });
+
       msg.channel.send(resultsGenerator(pollName, results));
       estMessage.delete();
     });
   }
 });
-
-function resultsGenerator(pollName, results) {
-  let res = `Задача: ${pollName}\n`;
-  let winner = {
-    name: "",
-    value: 0,
-  };
-  for (let key in results) {
-    res += `${key} - ${results[key]}\n`;
-
-    if (winner.value < results[key]) {
-      winner.name = key;
-      winner.value = results[key];
-    }
-  }
-  res += `Победил вариант ${winner.name} - ${winner.value} ${voteGenerator(
-    winner.value.toString()
-  )}\n`;
-  return res;
-}
-
-function voteGenerator(valueStr) {
-  const lastDigit = valueStr.charAt(valueStr.length - 1);
-  if (parseInt(valueStr) > 10 && parseInt(valueStr) < 20) return "голосов";
-  if (lastDigit.match(/1/)) return "голос";
-  if (lastDigit.match(/[2-4]/)) return "голоса";
-  return "голосов";
-}
