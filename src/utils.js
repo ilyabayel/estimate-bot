@@ -55,9 +55,6 @@ export function resultsGenerator(pollName, results) {
       winner.emojie = emojie;
     }
   }
-  res += `Победил вариант ${winner.emojie} - ${winner.value} ${voteGenerator(
-    winner.value.toString()
-  )}\n`;
   return res;
 }
 

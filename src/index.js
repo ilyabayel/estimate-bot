@@ -61,7 +61,9 @@ client.on("message", async (msg) => {
           .array();
 
         for (let user of filteredUsers) {
-          results[reaction.emoji.name].users.push(user.tag);
+          results[reaction.emoji.name].users.push(
+            msg.guild.members.cache.get(user.id).nickname
+          );
         }
       });
 
