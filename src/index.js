@@ -2,7 +2,8 @@ import "dotenv/config";
 import Discord from "discord.js";
 
 const client = new Discord.Client();
-const Token = "ODAzMTQwMzE5Njg3OTk5NTE4.YA5ctQ.QwEVaECtFkPpLJeIxdTvlmGgkcA";
+const Token = process.env.Token;
+const Port = process.env.PORT;
 
 client.login(Token);
 
