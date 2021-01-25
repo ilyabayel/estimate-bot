@@ -1,5 +1,5 @@
 import "dotenv/config";
-import Discord, { Emoji } from "discord.js";
+import Discord from "discord.js";
 
 const client = new Discord.Client();
 const Token = process.env.Token;
