@@ -4,6 +4,8 @@ import Discord from "discord.js";
 const client = new Discord.Client();
 const Token = process.env.Token;
 
+console.log(Token);
+
 client.login(Token);
 
 client.on("ready", () => {
