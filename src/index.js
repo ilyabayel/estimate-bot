@@ -80,3 +80,5 @@ function voteGenerator(valueStr) {
   if (lastDigit.match(/[2-4]/)) return "голоса";
   return "голосов";
 }
+
+//minimal change
