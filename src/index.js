@@ -1,12 +1,16 @@
 import "dotenv/config";
-import { createPoll, init, runEstimationController } from "./actions";
+import Discord from "discord.js";
+import { EstimationController } from "./controllers";
 
-const client = init();
+const client = new Discord.Client();
+
+client.login(process.env.TOKEN);
+
+client.on("ready", () => {
+  console.info(`Logged in as ${client.user.tag}!`);
+});
 
 client.on("message", async (msg) => {
   if (!msg.content.match(/^!est /)) return;
-
-  const pollName = msg.content.replace(/^!est /, "");
-  const pollMsg = await createPoll(msg, pollName);
-  runEstimationController(pollMsg, pollName);
+  new EstimationController(client, msg);
 });
