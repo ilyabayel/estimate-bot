@@ -7,14 +7,14 @@ This is a bot for Estimation Poll management. It creates and manages poll for pl
 ## How to use
 
 ```
-!est <Title>
+!est <Title>              // This is discord message written by you
 ```
 
 Output:
 
 ```
-<Title>
-[1, 2, 3, 5, 8, 13, stop]
+<Title>                   // This is discord message sent by bot
+[1, 2, 3, 5, 8, 13, stop] // This is discord message reaction emojies. Click to Vote
 ```
 
 After you click stop you will receive poll results
