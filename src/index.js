@@ -12,5 +12,6 @@ client.on("ready", () => {
 
 client.on("message", async (msg) => {
   if (!msg.content.match(/^!est /)) return;
-  new EstimationController(client, msg);
+  const controller = new EstimationController(client, msg);
+  controller.run();
 });

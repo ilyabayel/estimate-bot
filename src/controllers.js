@@ -5,41 +5,43 @@ import {
 import { keys } from "./constants";
 
 export class EstimationController {
+  client;
+  msg;
+  pollName;
+  pollMsg;
+  emojieDict;
+  results = createObjectFromArrayOfKeys(keys, { value: 0, users: [] });
+
   constructor(client, msg) {
     this.client = client;
     this.msg = msg;
     this.pollName = msg.content.replace(/^!est /, "");
-    this.results = createObjectFromArrayOfKeys(keys, { value: 0, users: [] });
     this.emojieDict = createObjectFromTwoArrays(
       [...client.emojis.cache.array().map((e) => e.name)],
       [...client.emojis.cache.array().map((e) => e.id)]
     );
-    this.msg.channel.send(this.pollName).then((res) => {
-      this.pollMsg = res;
-      this.handler();
-    });
   }
 
-  async handler() {
-    await Promise.allSettled([
-      ...keys.map((key) => this.pollMsg.react(this.emojieDict[key])),
-    ]);
+  async run() {
+    this.pollMsg = await this.msg.channel.send(this.pollName);
 
-    const controller = this.pollMsg.createReactionCollector(
-      this.pollVariantsFilter
+    await Promise.allSettled(
+      keys.map((key) => this.pollMsg.react(this.emojieDict[key]))
     );
 
-    controller.on("collect", this.onStopInterrupter(controller));
-    controller.on("end", this.controllerEndHandler);
+    const controller = this.pollMsg.createReactionCollector(
+      (r) => r.emoji.name in this.results
+    );
+
+    controller.on(
+      "collect",
+      (r) => r.emoji.name === "stop" && controller.stop("stopped by user")
+    );
+
+    controller.on("end", this.controllerEnd);
   }
 
-  pollVariantsFilter = (r) => r.emoji.name in this.results;
-
-  onStopInterrupter = (controller) => (r) => {
-    if (r.emoji.name === "stop") controller.stop("stopped by user");
-  };
-
-  controllerEndHandler = (collection) => {
+  controllerEnd = (collection) => {
     collection.forEach((reaction) => {
       if (reaction.emoji.name === "stop") {
         delete this.results[reaction.emoji.name];
