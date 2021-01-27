@@ -1,8 +1,7 @@
 {
-  "presets": ["@babel/preset-env"],
+  "presets": ["@babel/preset-env", "minify"],
   "plugins": [
       ["@babel/transform-runtime"],
-      ["@babel/plugin-proposal-class-properties"],
-      ["minify-simplify"]
+      ["@babel/plugin-proposal-class-properties"]
   ]
 }
