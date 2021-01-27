@@ -1,16 +1,16 @@
 import {
   createObjectFromArrayOfKeys,
   createObjectFromTwoArrays,
-} from "./utils";
-import { keys } from "./constants";
+} from "../utils";
 
-export class EstimationController {
+class EstimationController {
   client;
   msg;
   pollName;
   pollMsg;
   emojieDict;
-  results = createObjectFromArrayOfKeys(keys, { value: 0, users: [] });
+  keys = ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"];
+  results = createObjectFromArrayOfKeys(this.keys, { value: 0, users: [] });
 
   constructor(client, msg) {
     this.client = client;
@@ -26,7 +26,7 @@ export class EstimationController {
     this.pollMsg = await this.msg.channel.send(this.pollName);
 
     await Promise.allSettled(
-      keys.map((key) => this.pollMsg.react(this.emojieDict[key]))
+      this.keys.map((key) => this.pollMsg.react(this.emojieDict[key]))
     );
 
     const controller = this.pollMsg.createReactionCollector(
@@ -77,3 +77,5 @@ export class EstimationController {
     return res;
   };
 }
+
+export { EstimationController };
