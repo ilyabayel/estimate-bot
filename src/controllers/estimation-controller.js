@@ -15,15 +15,19 @@ class EstimationController {
   constructor(client, msg) {
     this.client = client;
     this.msg = msg;
-    this.pollName = msg.content.replace(/^!est /, "");
+  }
+
+  async init() {
+    this.pollName = this.msg.content.replace(/^!est /, "");
     this.emojieDict = createObjectFromTwoArrays(
-      [...client.emojis.cache.array().map((e) => e.name)],
-      [...client.emojis.cache.array().map((e) => e.id)]
+      [...this.client.emojis.cache.array().map((e) => e.name)],
+      [...this.client.emojis.cache.array().map((e) => e.id)]
     );
+    this.pollMsg = await this.msg.channel.send(this.pollName);
   }
 
   async run() {
-    this.pollMsg = await this.msg.channel.send(this.pollName);
+    await this.init();
 
     await Promise.allSettled(
       this.keys.map((key) => this.pollMsg.react(this.emojieDict[key]))
