@@ -18,3 +18,10 @@ Output:
 ```
 
 After you click stop you will receive poll results
+
+```
+Задача: <Title>
+[1] - <count> | UserName[] // emoji - votes count | list of users who voted for [1]
+[2] - <count> | UserName[]
+[3] - <count> | UserName[]
+```
