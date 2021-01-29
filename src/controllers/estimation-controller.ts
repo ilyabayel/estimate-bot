@@ -1,4 +1,4 @@
-import {Client, Message, MessageReaction, ReactionCollector} from "discord.js";
+import {Client, Emoji, Message, MessageReaction, ReactionCollector} from "discord.js";
 import {
   createObjectFromArrayOfKeys,
   createObjectFromTwoArrays,
@@ -77,10 +77,10 @@ class EstimationController {
     let res = `Задача: ${this.pollName}\n`;
 
     for (let key in this.results) {
-      let emoji = this.pollMsg.guild.emojis.cache.get(this.emojiDict[key])
+      let emoji: Emoji = this.pollMsg.guild.emojis.cache.get(this.emojiDict[key])
       const usersStr = this.results[key].users.join(", ");
 
-      res += `${emoji} - ${this.results[key].value}       | ${usersStr}\n`;
+      res += `<:${emoji.identifier}> - ${this.results[key].value}       | ${usersStr}\n`;
     }
 
     return res;
