@@ -1,39 +1,41 @@
+import {Client, Message, MessageReaction, ReactionCollector} from "discord.js";
 import {
   createObjectFromArrayOfKeys,
   createObjectFromTwoArrays,
 } from "../utils";
+import Collection from "@discordjs/collection";
 
 class EstimationController {
-  client;
-  msg;
-  pollName;
-  pollMsg;
-  emojieDict;
-  keys = ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"];
-  results = createObjectFromArrayOfKeys(this.keys, { value: 0, users: [] });
+  private client;
+  private msg;
+  private pollName;
+  private pollMsg;
+  private emojiDict;
+  private keys = ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"];
+  private results = createObjectFromArrayOfKeys<{value: number; users: string[]}>(this.keys, { value: 0, users: [] });
 
-  constructor(client, msg) {
+  constructor(client: Client, msg: Message) {
     this.client = client;
     this.msg = msg;
   }
 
-  async init() {
+  private async init(): Promise<void> {
     this.pollName = this.msg.content.replace(/^!est /, "");
-    this.emojieDict = createObjectFromTwoArrays(
+    this.emojiDict = createObjectFromTwoArrays(
       [...this.client.emojis.cache.array().map((e) => e.name)],
       [...this.client.emojis.cache.array().map((e) => e.id)]
     );
     this.pollMsg = await this.msg.channel.send(this.pollName);
   }
 
-  async run() {
+  public async run(): Promise<void> {
     await this.init();
 
     await Promise.allSettled(
-      this.keys.map((key) => this.pollMsg.react(this.emojieDict[key]))
+      this.keys.map((key) => this.pollMsg.react(this.emojiDict[key]))
     );
 
-    const controller = this.pollMsg.createReactionCollector(
+    const controller: ReactionCollector = this.pollMsg.createReactionCollector(
       (r) => r.emoji.name in this.results
     );
 
@@ -45,11 +47,16 @@ class EstimationController {
     controller.on("end", this.controllerEnd);
   }
 
-  controllerEnd = (collection) => {
-    collection.forEach((reaction) => {
+  private controllerEnd = (collection: Collection<string, MessageReaction>): void => {
+    collection.forEach((reaction: MessageReaction) => {
       if (reaction.emoji.name === "stop") {
         delete this.results[reaction.emoji.name];
         return;
+      }
+
+      if (!reaction.count) {
+        console.error("no reaction")
+        return
       }
       this.results[reaction.emoji.name].value = reaction.count - 1;
 
@@ -58,9 +65,7 @@ class EstimationController {
         .array();
 
       for (let user of filteredUsers) {
-        this.results[reaction.emoji.name].users.push(
-          this.msg.guild.members.cache.get(user.id).nickname
-        );
+        this.results[reaction.emoji.name].users.push(this.msg.guild.members.cache.get(user.id).nickname);
       }
     });
 
@@ -68,14 +73,14 @@ class EstimationController {
     this.pollMsg.delete();
   };
 
-  resultsGenerator = () => {
+  private resultsGenerator = (): string => {
     let res = `Задача: ${this.pollName}\n`;
 
     for (let key in this.results) {
-      let emojie = this.client.emojis.cache.get(this.emojieDict[key]);
+      let emoji = this.pollMsg.guild.emojis.cache.get(this.emojiDict[key])
       const usersStr = this.results[key].users.join(", ");
 
-      res += `${emojie} - ${this.results[key].value}       | ${usersStr}\n`;
+      res += `${emoji} - ${this.results[key].value}       | ${usersStr}\n`;
     }
 
     return res;
