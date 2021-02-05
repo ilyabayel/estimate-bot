@@ -23,7 +23,7 @@ class EstimationController {
     this.pollName = this.msg.content.replace(/^!est /, "");
     this.emojiDict = createObjectFromTwoArrays(
       [...this.client.emojis.cache.array().map((e) => e.name)],
-      [...this.client.emojis.cache.array().map((e) => e.id)]
+      [...this.client.emojis.cache.array().map((e) => e)]
     );
     this.pollMsg = await this.msg.channel.send(this.pollName);
   }
@@ -32,7 +32,7 @@ class EstimationController {
     await this.init();
 
     await Promise.allSettled(
-      this.keys.map((key) => this.pollMsg.react(this.emojiDict[key]))
+      this.keys.map((key) => this.pollMsg.react(this.emojiDict[key].id))
     );
 
     const controller: ReactionCollector = this.pollMsg.createReactionCollector(
@@ -54,10 +54,7 @@ class EstimationController {
         return;
       }
 
-      if (!reaction.count) {
-        console.error("no reaction")
-        return
-      }
+      if (!reaction.count) return
       this.results[reaction.emoji.name].value = reaction.count - 1;
 
       const filteredUsers = reaction.users.cache
@@ -74,13 +71,12 @@ class EstimationController {
   };
 
   private resultsGenerator = (): string => {
-    let res = `Задача: ${this.pollName}\n`;
+    let res = `Задача: ${this.pollName}\n\n`;
 
     for (let key in this.results) {
-      let emoji: Emoji = this.pollMsg.guild.emojis.cache.get(this.emojiDict[key])
-      const usersStr = this.results[key].users.join(", ");
-
-      res += `<:${emoji.identifier}> - ${this.results[key].value}       | ${usersStr}\n`;
+      let emoji: Emoji = this.emojiDict[key]
+      const usersVotedResult = this.results[key].users.join(", ");
+      res += `<:${emoji.identifier}> - ${this.results[key].value}       | ${usersVotedResult}\n`;
     }
 
     return res;
