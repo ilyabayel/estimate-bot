@@ -13,6 +13,7 @@ class EstimationController {
   private emojiDict;
   private keys = ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"];
   private results = createObjectFromArrayOfKeys<{value: number; users: string[]}>(this.keys, { value: 0, users: [] });
+  private reactionController: ReactionCollector | undefined;
 
   constructor(client: Client, msg: Message) {
     this.client = client;
@@ -31,20 +32,29 @@ class EstimationController {
   public async run(): Promise<void> {
     await this.init();
 
-    await Promise.allSettled(
+    Promise.allSettled(
       this.keys.map((key) => this.pollMsg.react(this.emojiDict[key].id))
-    );
+    ).then(() => {
+      this.reactionController = this.pollMsg.createReactionCollector(
+          (r) => r.emoji.name in this.results
+      );
 
-    const controller: ReactionCollector = this.pollMsg.createReactionCollector(
-      (r) => r.emoji.name in this.results
-    );
+      if (!this.reactionController) return;
 
-    controller.on(
-      "collect",
-      (r) => r.emoji.name === "stop" && controller.stop("stopped by user")
-    );
+      this.reactionController.on("collect",this.onControllerCollect);
+      this.reactionController.on("end", this.controllerEnd);
+    });
+  }
 
-    controller.on("end", this.controllerEnd);
+  private onControllerCollect = (r: MessageReaction) => {
+    if (!this.reactionController) return;
+
+    if (r.emoji.name === "stop") {
+      this.reactionController.stop("stopped by user");
+      return;
+    }
+
+
   }
 
   private controllerEnd = (collection: Collection<string, MessageReaction>): void => {
