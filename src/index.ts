@@ -13,5 +13,5 @@ client.on("ready", () => {
 client.on("message", async (msg: Discord.Message) => {
   if (!msg.content.match(/^!est /)) return;
   const controller = new EstimationController(client, msg);
-  await controller.run();
+  controller.run().then(() => console.log("Controller is running"));
 });

@@ -46,7 +46,6 @@ class EstimationController {
 
   private onReactionCollect = (r: MessageReaction): void => {
     if (!this.reactionController) return;
-
     if (r.emoji.name === "stop") {
       this.reactionController.stop("stopped by user");
       return;
