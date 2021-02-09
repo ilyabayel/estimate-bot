@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
     "sourceMap": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "module": "CommonJS",
     "target": "ES5",
     "lib": ["ESNext"],
     "removeComments": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
+    "allowSyntheticDefaultImports": false,
+    "allowJs": false,
     "baseUrl": "./",
     "esModuleInterop": true,
     "resolveJsonModule": true,

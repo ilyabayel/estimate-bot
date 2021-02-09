@@ -5,8 +5,8 @@
  *
  *  @returns object
  */
-export function createObjectFromArrayOfKeys<v>(arrayOfKeys: string[], value: v): {[key: string]: v} {
-  const obj = {};
+export function createObjectFromArrayOfKeys<T>(arrayOfKeys: string[], value: T): {[key: string]: T} {
+  const obj: {[key: string]: T} = {};
   for (let key of arrayOfKeys) {
     obj[key] = JSON.parse(JSON.stringify(value));
   }
@@ -14,17 +14,17 @@ export function createObjectFromArrayOfKeys<v>(arrayOfKeys: string[], value: v):
 }
 
 /*
- *  @function createObjectFromTwoArrays
+ *  @function createObjectFromTwoArrays<T>
  *  @param keys: string[]
- *  @param value: any[]
+ *  @param value: T[]
  *
  *  @description both arrays must be same length
  */
-export function createObjectFromTwoArrays(keys: string[], values: any[]): {[key: string]: any} {
+export function createObjectFromTwoArrays<T>(keys: string[], values: T[]): {[key: string]: T} {
   if (keys.length !== values.length) throw new Error("keys and values must be same length")
-  const obj = {};
+  const obj: {[key: string]: T} = {};
   for (let i = 0; i < keys.length; i++) {
-    obj[keys[i]] = values[i] ?? 0;
+    obj[keys[i]] = values[i];
   }
   return obj;
 }

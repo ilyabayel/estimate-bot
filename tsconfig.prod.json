@@ -6,7 +6,7 @@
     "target": "ES5",
     "lib": ["ESNext"],
     "removeComments": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": false,
     "allowJs": true,
     "baseUrl": "./",
     "esModuleInterop": true,

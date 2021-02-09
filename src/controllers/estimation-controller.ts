@@ -6,13 +6,13 @@ import {
 import Collection from "@discordjs/collection";
 
 class EstimationController {
-  private pollName: string = "";
+  private pollName = "";
   private pollMsg: Message | undefined;
   private emojiDict: {[key: string]: GuildEmoji} = {};
   private keys = ["zero", "one", "two", "three", "five", "eight", "thirteen", "stop"];
   private results = createObjectFromArrayOfKeys<{value: number; users: string[]}>(this.keys, { value: 0, users: [] });
   private reactionController: ReactionCollector | undefined;
-  private reactionCounter: number = 0;
+  private reactionCounter = 0;
 
   constructor(private client: Client, private msg: Message) {}
 
